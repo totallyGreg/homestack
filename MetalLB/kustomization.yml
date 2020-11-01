@@ -1,18 +1,28 @@
 # kustomization.yml
+
+# kustomization.yml
 namespace: metallb-system
 
 resources:
-  - github.com/metallb/metallb//manifests?ref=v0.9.3
+  - github.com/metallb/metallb//manifests?ref=v0.9.4
+  - configmap.yml
+  # - secret.yml
 
-configMapGenerator:
-- name: config
-  files:
-    - configs/config
+# If you want to use a configMapGenerator for config file, you want to tell kustomize not to append a hash to the configMap, as MetalLB is waiting for a configMap named config (see https://github.com/kubernetes-sigs/kustomize/blob/master/examples/generatorOptions.md):
+# namespace: metallb-system
 
-secretGenerator:
-- name: memberlist
-  files:
-    - configs/secretkey
+# resources:
+#   - github.com/metallb/metallb//manifests?ref=v0.9.3
 
-generatorOptions:
-  disableNameSuffixHash: true
+# configMapGenerator:
+# - name: config
+#   files:
+#     - configs/config
+
+# secretGenerator:
+# - name: memberlist
+#   files:
+#     - configs/secretkey
+
+# generatorOptions:
+#   disableNameSuffixHash: true
