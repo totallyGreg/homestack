@@ -2,6 +2,5 @@
 namespace: metallb-system
 
 resources:
-  - https://raw.githubusercontent.com/google/metallb/v0.9.5/manifests/metallb.yaml
   - configmap.yml
     # - secret.yml
