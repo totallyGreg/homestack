@@ -1,3 +1,4 @@
+---
 defaultNamespace: traefik-v2
 helm:
   releaseName: traefik
