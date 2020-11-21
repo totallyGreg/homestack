@@ -1,6 +1,4 @@
 namespace: traefik-v2
-resources:
-  - values.yml
 helm:
   releaseName: traefik
   chart: traefik
