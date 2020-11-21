@@ -1,4 +1,4 @@
-namespace: traefik-v2
+defaultNamespace: traefik-v2
 helm:
   releaseName: traefik
   chart: traefik
