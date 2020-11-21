@@ -1,6 +1,0 @@
-# kustomization.yml
-namespace: metallb-system
-
-bases:
-  - configmap.yml
-    # - secret.yml
