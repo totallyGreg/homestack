@@ -1,0 +1,8 @@
+namespace: traefik-v2
+helm:
+  releaseName: traefik
+  chart: traefik
+  repo: https://helm.traefik.io/traefik
+  version: ""
+  values:
+    - values.yml
