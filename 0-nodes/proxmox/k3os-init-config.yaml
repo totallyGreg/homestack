@@ -10,3 +10,9 @@ k3os:
     # - "--disable=local-storage"
     # - "--disable=traefik"
     # - "--disable=servicelb"
+write_files:
+  - path: /etc/conf.d/qemu-guest-agent
+    content: |-
+      GA_PATH=/dev/vport2p1
+    owner: root
+    permissions: '0644'
