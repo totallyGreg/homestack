@@ -1,3 +1,12 @@
 ssh_authorized_keys:
   - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDiYU89DRwESkcrZJFDhOO9NlyZ6OD7oe/3g2sZ4lTBKPBKHu6MMktWvYhhzg5RFZrg9qwKDMLPzAgpMYmTtnY4j4R5cTZAZxHgBtY9aUYruYcF0wvjIIxtaMFWT+hvXig8+pUM/A+46+z8ZwwvNePKvjZNqMfUMk1xmwS6xZYah5TTGroXVa/Z2elP7IuxzHMQSWct7ibefhdACpltbYywAEn4YXiMguXer6/cvzab2/iCDukjOTcf46Uff/kZgGGEJYnn4HgYSBwkN+hFXNQ0nZAcZK26FVf3mJHRbPifBLayqdTp3HRbKW7F+5Yi4s4ZHjoUN1NZAl7bLfV5Qudk52GtLobUZjj4y6Zc2ikNiMOguU07X7CkAZ4z+2fAu+LJmX1rwkT0uggizPkyT6FaVCk6R6+1rn3kaVOtqMNAS6gIisQGfHOVNs8ozAd2e4pHbUzScKMZrNoUfuyZ6TZvZ2b6uPTS4uf6SiGrK+o3oluNSSDuifq00pthqxHeITYoi+mqXmFF7gbeUXMK6HAp9JwirAxe5eOdR2HrgTNPhb3r+NTxOcYvGH0t9sMGOUfacz3kWS9q9iDTptVZDdk5aD3i1VlbNmD9NmtpJScoCs8sHxjqEIM8Wc8m+9bWkdSwAyRtKoIRRKN/1gx7q3DAbrU7bxKvMSmdm2hnqPfAbw== (none)
   - github:totallyGreg
+k3os:
+  token: kubernetes
+  # labels:  This seems to downgrade the cluster right after install
+  #   k3os.io/upgrade: enabled
+  k3s_args:
+    - "--cluster-init"
+    # - "--disable=local-storage"
+    # - "--disable=traefik"
+    # - "--disable=servicelb"
