@@ -10,9 +10,3 @@ k3os:
   k3s_args:
     - server
     - "--disable=local-storage"
-write_files:
-  - path: /etc/conf.d/qemu-guest-agent
-    content: |-
-      GA_PATH=/dev/vport2p1
-    owner: root
-    permissions: '0644'
