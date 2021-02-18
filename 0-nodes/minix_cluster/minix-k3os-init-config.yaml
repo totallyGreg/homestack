@@ -3,6 +3,8 @@ ssh_authorized_keys:
   - github:totallyGreg
 k3os:
   token: kubernetes
+  ntp_servers:
+    - time.apple.com
   # labels:  This seems to downgrade the cluster right after install
   #   k3os.io/upgrade: enabled
   k3s_args:

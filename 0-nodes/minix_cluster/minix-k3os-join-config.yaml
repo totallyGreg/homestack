@@ -4,6 +4,8 @@ ssh_authorized_keys:
 k3os:
   server_url: https://10.0.0.17:6443
   token: kubernetes
+  ntp_servers:
+    - time.apple.com
   labels:
     testing: true
     k3os.io/upgrade: enabled
