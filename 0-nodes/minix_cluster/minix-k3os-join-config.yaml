@@ -12,3 +12,5 @@ k3os:
   k3s_args:
     - server
     - "--disable=local-storage"
+    - "--disable=traefik"
+    - "--disable=servicelb"
