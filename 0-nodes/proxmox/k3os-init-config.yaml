@@ -3,8 +3,10 @@ ssh_authorized_keys:
   - github:totallyGreg
 k3os:
   token: kubernetes
-  # labels:  This seems to downgrade the cluster right after install
+    # labels:  This seems to downgrade the cluster right after install until latest is updated
   #   k3os.io/upgrade: enabled
+  ntp_servers:
+    - time.apple.com
   k3s_args:
     - "--cluster-init"
     # - "--disable=local-storage"
