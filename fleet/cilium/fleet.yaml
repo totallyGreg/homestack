@@ -2,7 +2,7 @@
 
 # The namespace this chart will be installed and restricted to,
 # if not specified the chart will be installed to "default"
-namespace: kube-system
+#namespace: kube-system
 
 # Custom helm options
 helm:
@@ -57,4 +57,3 @@ helm:
     'bpf.masquerade': 'false'
     'image.pullPolicy': 'IfNotPresent'
     'ipam.mode': 'kubernetes'
-
