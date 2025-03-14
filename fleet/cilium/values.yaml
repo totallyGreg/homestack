@@ -22,20 +22,20 @@ hostPort:
   enabled: true
 hostServices:
   enabled: false
-hubble:
-  enabled: true
-  metrics:
-    enabled:
-      - dns
-      - drop
-      - tcp
-      - flow
-      - icmp
-      - http
-  relay:
-    enabled: true
-  ui:
-    enabled: true
+# hubble:
+#   enabled: true
+#   metrics:
+#     enabled:
+#       - dns
+#       - drop
+#       - tcp
+#       - flow
+#       - icmp
+#       - http
+#   relay:
+#     enabled: true
+#   ui:
+#     enabled: true
 image:
   pullPolicy: IfNotPresent
 ipam:
