@@ -8,30 +8,82 @@ spec:
       name: http
       port: 80
       targetPort: 8080
-    - protocol: TCP
-      name: https
-      port: 443
-      targetPort: 8443
+    # - protocol: TCP
+    #   name: https
+    #   port: 443
+    #   targetPort: 8443
   selector:
     app: kuard
 ---
-kind: Ingress
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: kuardroute
+  namespace: default
+spec:
+  hostnames:
+    - kuard.infra.falcone.us
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: minix-gateway
+      namespace: default
+  rules:
+    - backendRefs:
+        - name: kuard
+          port: 80
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+---
+kind: Deployment
+apiVersion: apps/v1
 metadata:
   name: kuard
-  annotations:
-    kubernetes.io/ingress.class: istio
-    # traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
-    # traefik.ingress.kubernetes.io/router.middlewares: redirect-http@kuberntes-crd
+  labels:
+    app: kuard
+
 spec:
-  rules:
-  - host: kuard.home.falcone.us
-    http:
-      paths:
-      - path: "/"
-        backend:
-          serviceName: kuard
-          servicePort: 80
+  replicas: 2
+  selector:
+    matchLabels:
+      app: kuard
+  template:
+    metadata:
+      labels:
+        app: kuard
+    spec:
+      # affinity:
+      #   podAntiAffinity:
+      #     preferredDuringSchedulingIgnoredDuringExecution:
+      #       - topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: kuard
+          image: gcr.io/kuar-demo/kuard-amd64:blue
+          ports:
+            - name: http
+              containerPort: 8080
+            - name: https
+              containerPort: 8443
+# ---
+# kind: Ingress
+# apiVersion: networking.k8s.io/v1beta1
+# metadata:
+#   name: kuard
+#   annotations:
+#     kubernetes.io/ingress.class: istio
+#     # traefik.ingress.kubernetes.io/router.entrypoints: web, websecure
+#     # traefik.ingress.kubernetes.io/router.middlewares: redirect-http@kuberntes-crd
+# spec:
+#   rules:
+#   - host: kuard.home.falcone.us
+#     http:
+#       paths:
+#       - path: "/"
+#         backend:
+#           serviceName: kuard
+#           servicePort: 80
 # ---
 # apiVersion: traefik.containo.us/v1alpha1
 # kind: IngressRoute
@@ -87,33 +139,3 @@ spec:
 #     certResolver: stage
 #     domains:
 #     - main: kuard.test.falcone.us
----
-kind: Deployment
-apiVersion: apps/v1
-metadata:
-  name: kuard
-  labels:
-    app: kuard
-
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: kuard
-  template:
-    metadata:
-      labels:
-        app: kuard
-    spec:
-      # affinity:
-      #   podAntiAffinity:
-      #     preferredDuringSchedulingIgnoredDuringExecution:
-      #       - topologyKey: "kubernetes.io/hostname"
-      containers:
-        - name: kuard
-          image: gcr.io/kuar-demo/kuard-amd64:blue
-          ports:
-            - name: http
-              containerPort: 8080
-            - name: https
-              containerPort: 8443
