@@ -1,6 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: narthex
   name: transmission-vpn
   labels:
     app: transmission
@@ -23,7 +24,7 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
   name: transmission
-  namespace: default
+  namespace: narthex
 spec:
   hostnames:
     - transmission.infra.falcone.us
@@ -31,7 +32,7 @@ spec:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: minix-gateway
-      namespace: default
+      namespace: narthex
   rules:
     - backendRefs:
         - name: transmission-vpn
@@ -45,6 +46,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: transmission-config
+  namespace: narthex
 data:
   ENABLE_UFW: 'true'
   GLOBAL_APPLY_PERMISSIONS: 'true'
@@ -83,6 +85,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: transmission-vpn
+  namespace: narthex
 spec:
   podManagementPolicy: OrderedReady
   replicas: 1
