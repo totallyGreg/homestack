@@ -1,0 +1,185 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: transmission-vpn
+  labels:
+    app: transmission
+spec:
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: transmission-vpn-0
+    app: transmission
+  ports:
+    - port: 9091
+      protocol: TCP
+      targetPort: 9091
+      name: rpc
+    - port: 8888
+      protocol: TCP
+      targetPort: 8888
+      name: webproxy
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: transmission
+  namespace: default
+spec:
+  hostnames:
+    - transmission.infra.falcone.us
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: minix-gateway
+      namespace: default
+  rules:
+    - backendRefs:
+        - name: transmission-vpn
+          port: 9091
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: transmission-config
+data:
+  ENABLE_UFW: 'true'
+  GLOBAL_APPLY_PERMISSIONS: 'true'
+  GID: '8675309'
+  PUID: '1001'
+  LOCAL_NETWORK: 10.0.0.0/24,10.0.1.0/24,10.0.10.0/24,10.42.0.0/16,10.43.0.0/16
+  LOG_TO_STDOUT: 'true'
+  CREATE_TUN_DEVICE: 'true'
+  HEALTH_CHECK_HOST: google.com
+  OPENVPN_PROVIDER: EXPRESSVPN
+  OPENVPN_CONFIG: my_expressvpn_usa_-_tampa_-_1_udp
+  # OPENVPN_CONFIG: my_expressvpn_usa_-_miami_udp
+  OPENVPN_OPTS: --inactive 3600 --ping 10 --ping-exit 60 --pull-filter ignore ping
+  OPENVPN_USERNAME: username
+  OPENVPN_PASSWORD: password
+  TRANSMISSION_BLOCKLIST_ENABLED: 'true'
+  TRANSMISSION_BLOCKLIST_URL: 'http://list.iblocklist.com/?list=bt_level1&fileformat=p2p&archiveformat=gz'
+  TRANSMISSION_DOWNLOAD_QUEUE_SIZE: '4'
+  TRANSMISSION_ENCRYPTION: '2'
+  TRANSMISSION_PEER_PORT_RANDOM_ON_START: 'false' # container fails to start when this is set to true
+  TRANSMISSION_RATIO_LIMIT: '1'
+  TRANSMISSION_RATIO_LIMIT_ENABLED: 'true'
+  TRANSMISSION_SPEED_LIMIT_DOWN: '10000'
+  TRANSMISSION_SPEED_LIMIT_DOWN_ENABLED: 'true'
+  TRANSMISSION_SPEED_LIMIT_UP: '1000'
+  TRANSMISSION_SPEED_LIMIT_UP_ENABLED: 'true'
+  # TRANSMISSION_WEB_UI: "kettu"
+  TRANSMISSION_UMASK: '002' # jq parsing of settings.json fails to populate this properly
+  # TRANSMISSION_WEB_UI: 'flood-for-transmission'
+  TZ: America/New_York
+  UFW_ALLOW_GW_NET: 'false'
+  WEBPROXY_ENABLED: 'true'
+  WEBPROXY_PORT: '8888'
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: transmission-vpn
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: transmission
+  serviceName: transmission-vpn
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: 'false'
+      labels:
+        app: transmission
+    spec:
+      containers:
+        - name: transmission-vpn
+          envFrom:
+            - configMapRef:
+                name: transmission-config
+                optional: false
+            - secretRef:
+                name: expressvpn-creds
+                optional: false
+          image: haugene/transmission-openvpn:5.3.1
+          # had to delete vpn-configs-contrib before this would update
+          # error inside suggested `git config --global --add safe.directory /config/vpn-configs-contrib` but ~/.gitconfig isn't persistent
+          imagePullPolicy: Always
+          livenessProbe:
+            exec:
+              command: ['ping', '-I', 'tun0', '-c', '1', 'google.com']
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+          readinessProbe:
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 2
+            tcpSocket:
+              port: 9091
+            timeoutSeconds: 2
+          ports:
+            - containerPort: 8888
+              hostPort: 8888
+              name: webproxy
+              protocol: TCP
+            - containerPort: 9091
+              hostPort: 9091
+              name: rpc
+              protocol: TCP
+          resources:
+            limits:
+              memory: 2000Mi
+          securityContext:
+            allowPrivilegeEscalation: true
+            capabilities:
+              add:
+                - NET_ADMIN
+            privileged: true
+            procMount: Default
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+          stdin: true
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          tty: true
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            # - mountPath: /opt/transmission-ui/flood-for-transmission
+            #   name: config
+            #   subPath: flood-for-transmission
+            - mountPath: /data
+              name: data
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+    - metadata:
+        name: config
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 200Mi
+    - metadata:
+        name: data
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 100Gi
