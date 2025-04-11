@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: prowlarr
+  name: prowlarr
+spec:
+  ports:
+    - name: prowlarr
+      port: 9696
+      targetPort: 9696
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: prowlarr-0
+    app: prowlarr
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: prowlarr
+  namespace: narthex
+spec:
+  hostnames:
+    - prowlarr.infra.falcone.us
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: narthex-gateway
+      namespace: narthex
+  rules:
+    - backendRefs:
+        - name: prowlarr
+          port: 9696
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: prowlarr
+  name: prowlarr
+spec:
+  serviceName: 'prowlarr'
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: prowlarr
+  template:
+    metadata:
+      labels:
+        app: prowlarr
+    spec:
+      containers:
+        - env:
+            - name: PGID
+              value: '8675309'
+            - name: PUID
+              value: '1001'
+            - name: TZ
+              value: America/New_York
+            - name: UMASK
+              value: '002'
+          # image: cr.hotio.dev/hotio/prowlarr:testing
+          # image: lscr.io/linuxserver/prowlarr:develop
+          image: lscr.io/linuxserver/prowlarr:latest
+          imagePullPolicy: Always
+          name: prowlarr
+          ports:
+            - containerPort: 9696
+              name: prowlarrui
+          resources: {}
+          volumeMounts:
+            - mountPath: /config
+              name: prowlarr-claim0
+            - name: media
+              mountPath: /config/Backups
+              subPath: Archives/Prowlarr
+      dnsConfig:
+        options:
+          - name: ndots
+            value: '1'
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: media-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: prowlarr-claim0
+      spec:
+        accessModes: ['ReadWriteOnce']
+        # storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 2Gi
