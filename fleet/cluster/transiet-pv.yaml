@@ -8,7 +8,7 @@ spec:
   capacity:
     storage: 10Ti
   nfs:
-    path: /mnt/mpool/Media
+    path: /mnt/sanstripe/Transient
     server: freenasty.infra.falcone.us
   persistentVolumeReclaimPolicy: Retain
   storageClassName: ''
