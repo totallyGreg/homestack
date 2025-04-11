@@ -158,11 +158,11 @@ spec:
             # - mountPath: /opt/transmission-ui/flood-for-transmission
             #   name: config
             #   subPath: flood-for-transmission
-            - mountPath: /data/incomplete
-              name: data
             - name: transient
               mountPath: /data
               subPath: torrents
+            - mountPath: /data/incomplete
+              name: data
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
