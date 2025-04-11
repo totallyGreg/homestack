@@ -1,0 +1,136 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: sonarr
+  labels:
+    app: sonarr
+spec:
+  ports:
+    - port: 8989
+      name: sonarr
+    # - port: 9898
+    #   name: sonarr-tls
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: sonarr-0
+    app: sonarr
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: sonarr
+spec:
+  hostnames:
+    - sonarr.infra.falcone.us
+  parentRefs:
+    - group: gateway.networking.k8s.io
+      kind: Gateway
+      name: narthex-gateway
+      namespace: narthex
+  rules:
+    - backendRefs:
+        - name: sonarr
+          port: 8989
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: sonarr
+spec:
+  serviceName: 'sonarr'
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: sonarr
+  template:
+    metadata:
+      labels:
+        app: sonarr
+    spec:
+      containers:
+        - name: sonarr
+          # image: lscr.io/linuxserver/sonarr:latest
+          image: mdhiggins/sonarr-sma:develop
+
+          imagePullPolicy: Always
+          env:
+            - name: PGID
+              value: '1001'
+            - name: PUID
+              value: '1001'
+            - name: TZ
+              value: America/New_York
+          # - name: AuthenticationMethod
+          #   value: Basic
+          ports:
+            - containerPort: 8989
+              name: sonarrui
+              protocol: TCP
+          resources:
+            requests:
+              memory: '1024Mi'
+              # cpu: "250m"
+            limits:
+              memory: '1024Mi'
+              # cpu: "2000m"
+          volumeMounts:
+            - name: config
+              mountPath: /config
+            # - name: backups
+            #   mountPath: /config/Backups
+            - name: downloads
+              mountPath: /downloads
+            - name: media
+              mountPath: /tv
+              subPath: TV
+            - name: media
+              mountPath: /config/Backups
+              subPath: Archives/Sonarr
+            - name: sma-autoprocess
+              mountPath: /usr/local/sma/config/autoProcess.ini
+          # livenessProbe:
+          #   initialDelaySeconds: 60
+          #   failureThreshold: 5
+          #   timeoutSeconds: 10
+          # livenessProbe:
+          #   tcpSocket:
+          #     port: 8989
+          #   initialDelaySeconds: 300
+          #   periodSeconds: 300
+          #   timeoutSeconds: 50
+          # readinessProbe:
+          #   httpGet:
+          #     path: /api/v3/system/status
+          #     port: 8989
+          #   initialDelaySeconds: 120
+          #   periodSeconds: 30
+          #   timeoutSeconds: 10
+      securityContext:
+        # runAsUser: 1001
+        # runAsGroup: 1001
+        fsGroup: 8675309
+      volumes:
+        - name: media
+          persistentVolumeClaim:
+            claimName: media-pvc
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: data-transmission-vpn-0
+        - name: sma-autoprocess
+          secret:
+            secretName: sma-config
+            optional: true
+  volumeClaimTemplates:
+    - metadata:
+        name: config
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 2Gi
