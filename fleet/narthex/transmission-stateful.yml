@@ -140,6 +140,7 @@ spec:
             limits:
               memory: 2000Mi
           securityContext:
+            fsGroup: 8675309
             allowPrivilegeEscalation: true
             capabilities:
               add:
