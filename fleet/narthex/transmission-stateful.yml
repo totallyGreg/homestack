@@ -48,7 +48,7 @@ metadata:
 data:
   ENABLE_UFW: 'true'
   GLOBAL_APPLY_PERMISSIONS: 'true'
-  GID: '8675309'
+  PGID: '1001'
   PUID: '1001'
   LOCAL_NETWORK: 10.0.0.0/24,10.0.1.0/24,10.0.10.0/24,10.42.0.0/16,10.43.0.0/16
   LOG_TO_STDOUT: 'true'
