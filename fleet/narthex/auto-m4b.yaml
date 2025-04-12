@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: auto-m4b
+  labels:
+    app: auto-m4b
+spec:
+  clusterIP: None
+  selector:
+    statefulset.kubernetes.io/pod-name: auto-m4b-0
+    app: auto-m4b
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    io.kompose.service: auto-m4b
+  name: auto-m4b
+spec:
+  replicas: 1
+  serviceName: 'auto-m4b'
+  selector:
+    matchLabels:
+      app: auto-m4b
+  template:
+    metadata:
+      labels:
+        app: auto-m4b
+    spec:
+      containers:
+        - env:
+            - name: CPU_CORES
+              value: '3'
+            - name: PGID
+              value: '1001'
+            - name: PUID
+              value: '1001'
+            - name: SLEEPTIME
+              value: 1m
+            - name: MAKE_BACKUP
+              value: 'N'
+          image: seanap/auto-m4b:latest
+          imagePullPolicy: Always
+          name: auto-m4b
+          resources: {}
+          volumeMounts:
+            - mountPath: /config
+              name: config
+            - mountPath: /temp
+              name: temp
+            - mountPath: /temp/recentlyadded
+              name: transient
+              subPath: /torrents/completed/audiobooks
+            - mountPath: /media
+              name: media
+            - mountPath: /temp/untagged
+              name: media
+              subPath: Incoming
+      volumes:
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: data-transmission-vpn-0
+        - name: media
+          persistentVolumeClaim:
+            claimName: media-pvc
+        - name: transient
+          persistentVolumeClaim:
+            claimName: transient-pvc
+  volumeClaimTemplates:
+    - metadata:
+        name: config
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 100Mi
+    - metadata:
+        name: temp
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 1Gi
