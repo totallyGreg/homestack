@@ -84,6 +84,7 @@ spec:
             # - name: backups
             #   mountPath: /config/Backups
             - name: downloads
+              subPath: torrents
               mountPath: /downloads
             - name: media
               mountPath: /tv
