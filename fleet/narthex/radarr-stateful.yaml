@@ -109,7 +109,7 @@ spec:
             claimName: media-pvc
         - name: downloads
           persistentVolumeClaim:
-            claimName: data-transmission-vpn-0
+            claimName: transient-pvc
         - name: sma-autoprocess
           secret:
             secretName: sma-config
