@@ -54,7 +54,7 @@ spec:
       containers:
         - name: radarr
           # image: lscr.io/linuxserver/radarr:develop
-          image: mdhiggins/radarr-sma:develop
+          image: mdhiggins/radarr-sma:latest
           imagePullPolicy: Always
           env:
             - name: PGID
