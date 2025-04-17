@@ -58,7 +58,7 @@ spec:
           imagePullPolicy: Always
           env:
             - name: PGID
-              value: '8675309'
+              value: '1001'
             - name: PUID
               value: '1001'
             - name: TZ
@@ -104,6 +104,10 @@ spec:
           #   initialDelaySeconds: 10
           #   periodSeconds: 5
           #   timeoutSeconds: 5
+      securityContext:
+        # runAsUser: 1001
+        # runAsGroup: 1001
+        fsGroup: 8675309
       volumes:
         - name: media
           persistentVolumeClaim:
