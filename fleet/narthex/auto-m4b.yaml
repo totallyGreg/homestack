@@ -57,9 +57,6 @@ spec:
               name: media
               subPath: Incoming
       volumes:
-        - name: downloads
-          persistentVolumeClaim:
-            claimName: data-transmission-vpn-0
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc
