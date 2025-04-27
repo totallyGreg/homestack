@@ -140,7 +140,6 @@ spec:
             limits:
               memory: 2000Mi
           securityContext:
-            fsGroup: 8675309
             allowPrivilegeEscalation: true
             capabilities:
               add:
@@ -167,7 +166,8 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
-      securityContext: {}
+      securityContext:
+        fsGroup: 8675309
       terminationGracePeriodSeconds: 30
       volumes:
         - name: transient
