@@ -17,7 +17,7 @@ metadata:
     io.kompose.service: auto-m4b
   name: auto-m4b
 spec:
-  replicas: 1
+  replicas: 0
   serviceName: 'auto-m4b'
   selector:
     matchLabels:
