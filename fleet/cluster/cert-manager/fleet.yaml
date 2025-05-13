@@ -29,11 +29,13 @@ helm:
 
   # Custom values that will be passed as values.yaml to the installation
   values:
-    crds.enabled: true
-    crds.keep: true
-    config.apiVersion: 'controller.config.cert-manager.io/v1alpha1'
-    config.kind: 'ControllerConfiguration'
-    config.enableGatewayAPI: true
+    crds:
+      enabled: true
+      keep: true
+    config:
+      apiVersion: 'controller.config.cert-manager.io/v1alpha1'
+      kind: 'ControllerConfiguration'
+      enableGatewayAPI: true
 
   # --set crds.enabled=true
   # --set config.apiVersion="controller.config.cert-manager.io/v1alpha1" \
