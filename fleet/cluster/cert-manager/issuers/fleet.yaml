@@ -25,7 +25,7 @@ helm:
   # repo: 'oci://ghcr.io/waldner/charts/cert-manager-webhook-he'
 
   # Used if repo is set to look up the version of the chart
-  version: 'v1.17.2'
+  # version: ''
 
   # Force recreate resource that can not be updated
   force: true
