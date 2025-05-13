@@ -12,6 +12,8 @@ defaultNamespace: cert-manager
 
 # Custom helm options
 helm:
+  takeOwnership: true
+
   # The release name to use. If empty a generated release name will be used
   releaseName: cert-manager
 
