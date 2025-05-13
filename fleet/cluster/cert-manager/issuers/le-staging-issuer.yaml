@@ -1,7 +1,7 @@
 apiVersion: cert-manager.io/v1
-kind: Issuer
+kind: ClusterIssuer
 metadata:
-  name: he-letsencrypt-staging
+  name: letsencrypt-staging
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
@@ -9,7 +9,23 @@ spec:
     privateKeySecretRef:
       name: letsencrypt-staging
     solvers:
-      - dns01:
+      - selector:
+          dnsZones:
+            - falcone.us
+            - pseudo-blue.com
+            - test.pseudo-blue.com
+        dns01:
+          # The fun bit:
+          webhook:
+            groupName: jameslakin.co.uk # Must match the group name in the Helm chart (this is the default and shouldn't need changing to your own domain)
+            solverName: cpanel-solver # Don't change
+            config:
+              cpanelUrl: https://cpanel.pseudo-blue.com # No trailing slash
+              secretRef: cert-manager/pseudo-cpanel-credentials # In the form namespace/secret-name
+      - selector:
+          dnsZones:
+            - 'snellarcade.org'
+        dns01:
           webhook:
             solverName: he
             groupName: acme.xdb.me
