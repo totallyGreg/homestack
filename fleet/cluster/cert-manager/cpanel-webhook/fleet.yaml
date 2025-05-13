@@ -1,0 +1,47 @@
+# This file and all contents in it are OPTIONAL.
+# The default namespace to be applied to resources. This field is not used to
+# enforce or lock down the deployment to a specific namespace, but instead
+# provide the default value of the namespace field if one is not specified in
+# the manifests.
+#
+# Default: default
+# defaultNamespace: default
+
+defaultNamespace: cert-manager
+
+# The namespace this chart will be installed and restricted to,
+# if not specified the chart will be installed to "default"
+# namespace: cert-manager
+
+# Custom helm options
+# # to use environment variables
+# $ helm upgrade --install --namespace cert-manager \
+#    --set auth.heUsername=myusername \
+#    --set auth.hePassword=mypassword \
+#    --set auth.heApiKey=myapikey \
+#    cert-manager-webhook-he oci://ghcr.io/waldner/charts/cert-manager-webhook-he
+
+helm:
+  # The release name to use. If empty a generated release name will be used
+  releaseName: cpanel-webhook
+
+  # The directory of the chart in the repo.  Also any valid go-getter supported
+  # URL can be used there is specify where to download the chart from.
+  # If repo below is set this value if the chart name in the repo
+  chart: 'https://github.com/jamesorlakin/cert-manager-cpanel-dns-webhook/deploy/chart'
+
+  # An https to a valid Helm repository to download the chart from
+  # repo: 'oci://ghcr.io/waldner/charts/cert-manager-webhook-he'
+
+  # Used if repo is set to look up the version of the chart
+  # version: ''
+
+  # Force recreate resource that can not be updated
+  force: true
+
+  # How long for helm to wait for the release to be active. If the value
+  # is less that or equal to zero, we will not wait in Helm
+  timeoutSeconds: 0
+
+  # Custom values that will be passed as values.yaml to the installation
+  # values:
