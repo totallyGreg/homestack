@@ -33,7 +33,7 @@ spec:
               heUrl: 'https://dns.he.net' # URL for operations. Default (and probably the only valid value): "https://dns.he.net"
               method: 'dynamic-dns' # method to use. "login" is also the default
               # only if you use secrets
-              credentialsSecretRef:
+              apiKeySecretRef:
                 name: 'he-credentials' # name of secret. Default: "he-credentials"
                 namespace:
                   'cert-manager' # optional namespace for the secret. If not given, the secret is

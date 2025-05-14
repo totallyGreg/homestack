@@ -49,6 +49,10 @@ helm:
       useSecrets: true
       # This controls which namespaces the webhook will be able to read
       # secrets from. BEWARE: AN EMPTY ARRAY MEANS THAT A ClusterRole WILL BE CREATED.
+    certManager:
+      namespace: cert-manager
+      serviceAccountName: cert-manager
+    groupName: acme.xdb.me
     rbac:
       secretNamespaces: [cert-manager]
       secretNames:
