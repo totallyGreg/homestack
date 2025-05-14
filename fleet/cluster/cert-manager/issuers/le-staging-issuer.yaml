@@ -30,7 +30,7 @@ spec:
             solverName: he
             groupName: acme.xdb.me
             config:
-              heUrl: 'https://dns.he.net' # URL for operations. Default (and probably the only valid value): "https://dns.he.net"
+              heUrl: 'https://dyn.dns.he.net' # URL for operations. Default (and probably the only valid value): "https://dns.he.net"
               method: 'dynamic-dns' # method to use. "login" is also the default
               # only if you use secrets
               apiKeySecretRef:
