@@ -3,6 +3,8 @@ kind: Gateway
 metadata:
   name: narthex-gateway
   namespace: narthex
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   addresses:
     - type: IPAddress
@@ -18,6 +20,28 @@ spec:
     - allowedRoutes:
         namespaces:
           from: Same
+          # from: All
       name: https
       port: 443
       protocol: HTTPS
+      hostname: 'narthex.snellarcade.org' # ✅ Required.
+      tls:
+        mode: Terminate # ✅ Required. "Terminate" is the only supported mode.
+        certificateRefs:
+          - name: narthex-snellarcade-org-tls # ✅ Required.
+            kind: Secret # ✅ Optional. "Secret" is the only valid value.
+            group: '' # ✅ Optional. "" is the only valid value.
+    - allowedRoutes:
+        namespaces:
+          from: Same
+          # from: All
+      name: https
+      port: 443
+      protocol: HTTPS
+      hostname: '*.snellarcade.org' # ✅ Required.
+      tls:
+        mode: Terminate # ✅ Required. "Terminate" is the only supported mode.
+        certificateRefs:
+          - name: wild-snellarcade-tls # ✅ Required.
+            kind: Secret # ✅ Optional. "Secret" is the only valid value.
+            group: '' # ✅ Optional. "" is the only valid value.
