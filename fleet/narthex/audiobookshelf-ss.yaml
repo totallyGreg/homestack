@@ -1,27 +1,33 @@
 apiVersion: v1
+kind: ServiceAccount
+metadata:
+  annotations:
+    kubernetes.io/enforce-mountable-secrets: 'true'
+  name: audiobookshelf
+  namespace: narthex
+---
+apiVersion: v1
 kind: Service
 metadata:
-  name: sonarr
+  name: audiobookshelf
   labels:
-    app: sonarr
+    app: audiobookshelf
 spec:
   ports:
-    - port: 8989
-      name: sonarr
-    # - port: 9898
-    #   name: sonarr-tls
+    - port: 80
+      name: abs
   clusterIP: None
   selector:
-    statefulset.kubernetes.io/pod-name: sonarr-0
-    app: sonarr
+    statefulset.kubernetes.io/pod-name: audiobookshelf-0
+    app: audiobookshelf
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: sonarr
+  name: audiobookshelf
 spec:
   hostnames:
-    - sonarr.infra.falcone.us
+    - audiobookshelf.infra.falcone.us
   parentRefs:
     - group: gateway.networking.k8s.io
       kind: Gateway
@@ -29,8 +35,8 @@ spec:
       namespace: narthex
   rules:
     - backendRefs:
-        - name: sonarr
-          port: 8989
+        - name: audiobookshelf
+          port: 80
       matches:
         - path:
             type: PathPrefix
@@ -39,21 +45,19 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: sonarr-tls
+  name: audiobookshelf-tls
 spec:
+  hostnames:
+    - audiobookshelf.snellarcade.org
+    - audiobookshelf.lebastion.snellarcade.org
   parentRefs:
     - name: narthex-gateway
       sectionName: https
       namespace: narthex
-  hostnames:
-    - sonarr.infra.falcone.us
-    - sonarr.test.pseudo-blue.com
-    - sonarr.snellarcade.org
-    - sonarr.lebastion.snellarcade.org
   rules:
     - backendRefs:
-        - name: sonarr
-          port: 8989
+        - name: audiobookshelf
+          port: 80
       matches:
         - path:
             type: PathPrefix
@@ -62,23 +66,22 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: sonarr
+  name: audiobookshelf
 spec:
-  serviceName: 'sonarr'
+  serviceName: 'audiobookshelf'
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: sonarr
+      app: audiobookshelf
   template:
     metadata:
       labels:
-        app: sonarr
+        app: audiobookshelf
     spec:
       containers:
-        - name: sonarr
-          # image: lscr.io/linuxserver/sonarr:latest
-          image: mdhiggins/sonarr-sma:develop
+        - name: audiobookshelf
+          image: ghcr.io/advplyr/audiobookshelf
 
           imagePullPolicy: Always
           env:
@@ -88,11 +91,9 @@ spec:
               value: '1001'
             - name: TZ
               value: America/New_York
-          # - name: AuthenticationMethod
-          #   value: Basic
           ports:
-            - containerPort: 8989
-              name: sonarrui
+            - containerPort: 80
+              name: abs
               protocol: TCP
           resources:
             requests:
@@ -104,19 +105,17 @@ spec:
           volumeMounts:
             - name: config
               mountPath: /config
-            # - name: backups
-            #   mountPath: /config/Backups
-            - name: downloads
-              subPath: torrents
-              mountPath: /downloads
+            - name: metadata
+              mountPath: /metadata
+            # - name: downloads
+            #   subPath: torrents
+            # mountPath: /downloads
             - name: media
-              mountPath: /tv
-              subPath: TV
+              mountPath: /audiobooks
+              subPath: Audiobooks
             - name: media
-              mountPath: /config/Backups
-              subPath: Archives/Sonarr
-            - name: sma-autoprocess
-              mountPath: /usr/local/sma/config/autoProcess.ini
+              mountPath: /podcasts
+              subPath: Podcasts
           # livenessProbe:
           #   initialDelaySeconds: 60
           #   failureThreshold: 5
@@ -142,16 +141,20 @@ spec:
         - name: media
           persistentVolumeClaim:
             claimName: media-pvc
-        - name: downloads
-          persistentVolumeClaim:
-            claimName: transient-pvc
-        - name: sma-autoprocess
-          secret:
-            secretName: sma-config
-            optional: true
+        # - name: downloads
+        #   persistentVolumeClaim:
+        #     claimName: transient-pvc
   volumeClaimTemplates:
     - metadata:
         name: config
+      spec:
+        accessModes: ['ReadWriteOnce']
+        storageClassName: 'longhorn'
+        resources:
+          requests:
+            storage: 2Gi
+    - metadata:
+        name: metadata
       spec:
         accessModes: ['ReadWriteOnce']
         storageClassName: 'longhorn'
