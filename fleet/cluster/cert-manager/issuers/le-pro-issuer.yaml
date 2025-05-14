@@ -1,0 +1,42 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-production
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: totally@svaha.com
+    privateKeySecretRef:
+      name: letsencrypt-production
+    solvers:
+      # - selector:
+      #     dnsZones:
+      #       - falcone.us
+      #       - pseudo-blue.com
+      #       - test.pseudo-blue.com
+      #   dns01:
+      #     # The fun bit:
+      #     webhook:
+      #       groupName: jameslakin.co.uk # Must match the group name in the Helm chart (this is the default and shouldn't need changing to your own domain)
+      #       solverName: cpanel-solver # Don't change
+      #       config:
+      #         cpanelUrl: https://cpanel.pseudo-blue.com # No trailing slash
+      #         secretRef: cert-manager/pseudo-cpanel-credentials # In the form namespace/secret-name
+      - selector:
+          dnsZones:
+            - 'snellarcade.org'
+        dns01:
+          webhook:
+            solverName: he
+            groupName: acme.xdb.me
+            config:
+              heUrl: 'https://dyn.dns.he.net' # URL for operations. Default (and probably the only valid value): "https://dns.he.net"
+              method: 'dynamic-dns' # method to use. "login" is also the default
+              # only if you use secrets
+              apiKeySecretRef:
+                name: 'he-credentials' # name of secret. Default: "he-credentials"
+                namespace:
+                  'cert-manager' # optional namespace for the secret. If not given, the secret is
+                  # looked for in the issuer namespace.
+                  # For a ClusterIssuer, specify this or the release namespace (eg,
+                  # `cert-manager`) will be used.
