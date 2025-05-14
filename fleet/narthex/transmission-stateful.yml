@@ -40,6 +40,27 @@ spec:
             type: PathPrefix
             value: /
 ---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: transmission-tls
+spec:
+  hostnames:
+    - transmission.snellarcade.org
+    - transmission.lebastion.snellarcade.org
+  parentRefs:
+    - name: narthex-gateway
+      sectionName: https
+      namespace: narthex
+  rules:
+    - backendRefs:
+        - name: transmission-vpn
+          port: 9091
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
