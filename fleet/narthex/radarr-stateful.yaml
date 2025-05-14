@@ -12,7 +12,34 @@ spec:
   selector:
     statefulset.kubernetes.io/pod-name: radarr-0
     app: radarr
-
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: radarr-tls
+spec:
+  parentRefs:
+    - name: narthex-gateway
+      sectionName: https
+      namespace: narthex
+  hostnames:
+    - radarr.infra.falcone.us
+    - radarr.test.pseudo-blue.com
+    - radarr.snellarcade.org
+    - radarr.lebastion.snellarcade.org
+  rules:
+    - backendRefs:
+        - name: radarr
+          port: 7878
+      matches:
+        - path:
+            type: PathPrefix
+            value: /
+    # - filters:
+    # - type: RequestRedirect
+    #   requestRedirect:
+    #     scheme: https
+    #     statusCode: 301
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -25,6 +52,7 @@ spec:
     - group: gateway.networking.k8s.io
       kind: Gateway
       name: narthex-gateway
+      sectionName: http
       namespace: narthex
   rules:
     - backendRefs:
