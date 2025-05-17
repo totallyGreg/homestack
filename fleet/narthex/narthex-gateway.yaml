@@ -41,7 +41,7 @@ spec:
       tls:
         mode: Terminate # ✅ Required. "Terminate" is the only supported mode.
         certificateRefs:
-          - name: wildcard-snellarcade-org-tls # ✅ Required.
+          - name: snellarcade-org-tls # ✅ Required.
             kind: Secret # ✅ Optional. "Secret" is the only valid value.
             group: '' # ✅ Optional. "" is the only valid value.
 ---
