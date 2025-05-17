@@ -4,7 +4,7 @@ metadata:
   name: narthex-gateway
   namespace: narthex
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-production
+    cert-manager.io/cluster-issuer: letsencrypt-staging
 spec:
   addresses:
     - type: IPAddress
@@ -23,7 +23,7 @@ spec:
       name: plex
       port: 32400
       protocol: HTTPS
-      hostname: 'narthaplex.snellarcade.org' # ✅ Required.
+      hostname: 'plex.narthex.snellarcade.org' # ✅ Required.
       tls:
         mode: Terminate # ✅ Required. "Terminate" is the only supported mode.
         certificateRefs:
