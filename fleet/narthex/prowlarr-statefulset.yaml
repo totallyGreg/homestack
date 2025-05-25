@@ -46,9 +46,8 @@ spec:
     - prowlarr.snellarcade.org
     - prowlarr.lebastion.snellarcade.org
   parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: narthex-gateway
+    - name: narthex-gateway
+      sectionName: https
       namespace: narthex
   rules:
     - backendRefs:

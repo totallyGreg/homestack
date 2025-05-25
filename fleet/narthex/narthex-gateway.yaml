@@ -17,19 +17,19 @@ spec:
       name: http
       port: 80
       protocol: HTTP
-    # - allowedRoutes:
-    #     namespaces:
-    #       from: Same
-    #   name: plex
-    #   port: 32400
-    #   protocol: HTTPS
-    #   hostname: 'plex.narthex.snellarcade.org' # ✅ Required.
-    #   tls:
-    #     mode: Terminate # ✅ Required. "Terminate" is the only supported mode.
-    #     certificateRefs:
-    #       - name: snellarcade-org-tls # ✅ Required.
-    #         kind: Secret # ✅ Optional. "Secret" is the only valid value.
-    #         group: '' # ✅ Optional. "" is the only valid value.
+    - allowedRoutes:
+        namespaces:
+          from: Same
+      name: plex
+      port: 32400
+      protocol: HTTPS
+      hostname: 'narthaplex.snellarcade.org' # ✅ Required.
+      tls:
+        mode: Terminate # ✅ Required. "Terminate" is the only supported mode.
+        certificateRefs:
+          - name: snellarcade-org-tls # ✅ Required.
+            kind: Secret # ✅ Optional. "Secret" is the only valid value.
+            group: '' # ✅ Optional. "" is the only valid value.
     - allowedRoutes:
         namespaces:
           from: Same

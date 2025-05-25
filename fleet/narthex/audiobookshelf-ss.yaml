@@ -15,7 +15,7 @@ metadata:
 spec:
   ports:
     - port: 80
-      name: abs
+      name: http
   clusterIP: None
   selector:
     statefulset.kubernetes.io/pod-name: audiobookshelf-0
@@ -24,32 +24,10 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: audiobookshelf
-spec:
-  hostnames:
-    - audiobookshelf.infra.falcone.us
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: narthex-gateway
-      namespace: narthex
-  rules:
-    - backendRefs:
-        - name: audiobookshelf
-          port: 80
-      matches:
-        - path:
-            type: PathPrefix
-            value: /
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
   name: audiobookshelf-tls
 spec:
   hostnames:
     - audiobookshelf.snellarcade.org
-    - audiobookshelf.lebastion.snellarcade.org
   parentRefs:
     - name: narthex-gateway
       sectionName: https
